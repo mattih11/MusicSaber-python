@@ -70,9 +70,9 @@ class SensorDataDecoder:
 
         lsm303Gyr_DPS_LSB = 8.75 * 0.001   # 8.75 mdps per lsb
 
-        g_x = raw['g_x'] / lsm303Gyr_DPS_LSB
-        g_y = raw['g_y'] / lsm303Gyr_DPS_LSB
-        g_z = raw['g_z'] / lsm303Gyr_DPS_LSB
+        g_x = raw['g_x'] * lsm303Gyr_DPS_LSB
+        g_y = raw['g_y'] * lsm303Gyr_DPS_LSB
+        g_z = raw['g_z'] * lsm303Gyr_DPS_LSB
 
         return {'x': g_x, 'y': g_y, 'z': g_z}
 
