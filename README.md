@@ -1,7 +1,7 @@
 # LightSaber controlled MIDI device
 This repository provides python scripts to receive 9-DoF sensor data via BTLE and generate MIDI signals.
 The idea is to generate a device that can translate light saber movements into music.
-![MusicSaber dataflow](lightsaber_dataflow?raw=true "Dataflow")
+![MusicSaber dataflow](lightsaber_dataflow.png?raw=true "Dataflow")
 
 # Class description
 A brief overview over the classes and their functionalities, later should be added to the Wiki, I guess.
