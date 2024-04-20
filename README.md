@@ -4,15 +4,6 @@ The idea is to generate a device that can translate light saber movements into m
 
 # Class description
 A brief overview over the classes and their functionalities, later should be added to the Wiki, I guess.
-## Receiver
-Receive and handle the BTLE messages based on the python package bleaker
-### Latency
-BTLE connection is pretty slow and causes the main latency ~100ms, compared to the rest of about 2ms.
-It's still not clear if the sender or receiver is causing this latency.
-To solve this, there are two main steps to be performed
-- make measurements with other devices to be sure it's not a hardware specific topic
-- investigate on ESP32 side (other github project)
-- --> if this steps fail, we need to have a look for other BTLE libraries or move from python to a more performant C++ project. But this is definitely for later, as we want to do rapid prototyping
 ## Data
 Decode the received encoded data and convert to humanly understandable formats.
 ## Gui
@@ -27,6 +18,15 @@ Possible solutions:
 Start and runs the main loop. Our entry point to the application
 ## Midi
 Handle midi device connections and play notes.
+## Receiver
+Receive and handle the BTLE messages based on the python package bleaker
+### Latency
+BTLE connection is pretty slow and causes the main latency ~100ms, compared to the rest of about 2ms.
+It's still not clear if the sender or receiver is causing this latency.
+To solve this, there are two main steps to be performed
+- make measurements with other devices to be sure it's not a hardware specific topic
+- investigate on ESP32 side (other github project)
+- --> if this steps fail, we need to have a look for other BTLE libraries or move from python to a more performant C++ project. But this is definitely for later, as we want to do rapid prototyping
 
 # TODOs
 - add formatter files to the repository
