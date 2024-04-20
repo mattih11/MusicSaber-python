@@ -6,15 +6,27 @@ The idea is to generate a device that can translate light saber movements into m
 A brief overview over the classes and their functionalities, later should be added to the Wiki, I guess.
 ## Receiver
 Receive and handle the BTLE messages based on the python package bleaker
-### Problems
+### Latency
 BTLE connection is pretty slow and causes the main latency ~100ms, compared to the rest of about 2ms.
 It's still not clear if the sender or receiver is causing this latency.
 To solve this, there are two main steps to be performed
 - make measurements with other devices to be sure it's not a hardware specific topic
 - investigate on ESP32 side (other github project)
 - --> if this steps fail, we need to have a look for other BTLE libraries or move from python to a more performant C++ project. But this is definitely for later, as we want to do rapid prototyping
+## Data
+Decode the received encoded data and convert to humanly understandable formats.
+## Gui
+Plot the current magnetic orientation as a moving coordinate system and the gyro and accelerometer data in line graphs.
+### Latency
+The performance of matplotlib is horrible at the moment. I recommend deactivating the plotting for realtime live playing applications. For debugging and development this is really useful.
+Possible solutions:
+- move to another library
+- try to find ways to only update changes in the drawn elements by their handles instead of cla()-ing everything.
+- upadte asynchronously in another thread, worker, whatsoever. This is tricky as the Gui wants to spawn in the main thread to appear on screen.
 ## Main (actually not a class)
 Start and runs the main loop. Our entry point to the application
+## Midi
+Handle midi device connections and play notes.
 
 # TODOs
 - add formatter files to the repository
