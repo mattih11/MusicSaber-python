@@ -29,6 +29,7 @@ async def main():
         acc = SensorDataDecoder.convert_accelerometer_data(decoded_data)
         #print(acc)
         gyr = SensorDataDecoder.convert_gyro_data(decoded_data)
+        print(gyr)
         converted = timer()
         print("converted: ", converted-received)
         #print(orientation_angles)
@@ -37,25 +38,25 @@ async def main():
             midi.stop_notes(my_callback.chord)
             my_callback.chord = None
 
-        if(acc['x'] > 5):
+        if(gyr['x'] > 50):
             my_callback.chord = \
                 [midi.c_scale[max(0, round(scale_val) % len(midi.c_scale))],
                  midi.c_scale[max(0, round(scale_val+4) % len(midi.c_scale))],
                  midi.c_scale[max(0, round(scale_val+7) % len(midi.c_scale))]]
             midi.start_notes(my_callback.chord)
-        elif(acc['y'] > 5):
+        elif(gyr['y'] > 50):
             my_callback.chord = \
                 [midi.c_scale[max(0, round(scale_val) % len(midi.c_scale))] + 12,
                  midi.c_scale[max(0, round(scale_val+5) % len(midi.c_scale))] + 12,
                  midi.c_scale[max(0, round(scale_val+9) % len(midi.c_scale))] + 12]
             midi.start_notes(my_callback.chord)
-        elif(acc['x'] < -5):
+        elif(gyr['x'] < -50):
             my_callback.chord = \
                 [midi.c_scale[max(0, round(scale_val) % len(midi.c_scale))],
                  midi.c_scale[max(0, round(scale_val-3) % len(midi.c_scale))],
                  midi.c_scale[max(0, round(scale_val+4) % len(midi.c_scale))]]
             midi.start_notes(my_callback.chord)
-        elif(acc['y'] < -5):
+        elif(acc['y'] < -50):
             my_callback.chord = \
                 [midi.c_scale[max(0, round(scale_val+4) % len(midi.c_scale))] + 12,
                  midi.c_scale[max(0, round(scale_val+7) % len(midi.c_scale))] + 12,
@@ -70,8 +71,7 @@ async def main():
 
         played = timer()
         print("played: ", played-converted)
-
-        t = threading.Thread(target=gui.update, args=(orientation_angles, mag, acc, gyr))
+        # gui.update(orientation_angles, mag, acc, gyr)
         gui_update = timer()
         print("gui: ", gui_update-played)
 
