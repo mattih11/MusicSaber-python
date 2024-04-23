@@ -1,0 +1,4 @@
+bleak
+pygame
+numpy
+matplotlib
