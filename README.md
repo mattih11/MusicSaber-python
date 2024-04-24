@@ -36,3 +36,6 @@ To solve this, there are two main steps to be performed
 - generate a class that can link events to midi signals (ex. rising edge in signal derivation (neg, pos) --> tigger chord)
 - generate calibration.py class to have calibration routines
 - generate configuration handling (.yml?) --> remove magic numbers
+
+# Install
+- pip install -r requirements.txt
