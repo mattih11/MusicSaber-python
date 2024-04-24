@@ -56,7 +56,7 @@ async def main():
                  midi.c_scale[max(0, round(scale_val-3) % len(midi.c_scale))],
                  midi.c_scale[max(0, round(scale_val+4) % len(midi.c_scale))]]
             midi.start_notes(my_callback.chord)
-        elif(acc['y'] < -50):
+        elif(gyr['y'] < -50):
             my_callback.chord = \
                 [midi.c_scale[max(0, round(scale_val+4) % len(midi.c_scale))] + 12,
                  midi.c_scale[max(0, round(scale_val+7) % len(midi.c_scale))] + 12,
