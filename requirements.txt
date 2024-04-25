@@ -2,3 +2,6 @@ bleak
 pygame
 numpy
 matplotlib
+PyOpenGL
+PyQt5
+pyqtgraph
