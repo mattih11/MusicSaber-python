@@ -1,11 +1,30 @@
-from bleak import BleakClient
+from bleak import BleakClient, BleakScanner
+from data import SensorDataDecoder
+import time
 
 class Receiver:
-    def __init__(self, device_address):
-        self.device_address = device_address
+    def __init__(self):
         self.client = None
         self.connected = False
         self.callbacks = []
+
+    def __del__(self):
+        print("receiver destroyed")
+        self.disconnect()
+
+    async def scan_and_select_device(self):
+        print("Scanning for devices...")
+        devices = await BleakScanner.discover()
+        if not devices:
+            print("No devices found")
+            return None
+
+        print("Found devices:")
+        for i, device in enumerate(devices):
+            print(f"{i}: {device.name} ({device.address})")
+
+        index = int(input("Enter the number of the device you want to connect to: "))
+        self.device_address = devices[index].address
 
     async def connect(self):
         print("Trying to connect to device with MAC address:", self.device_address)
@@ -30,8 +49,9 @@ class Receiver:
         print("Callback removed.")
 
     async def handle_data(self, sender, data):
+        decoded = SensorDataDecoder.decode_data(data, time.perf_counter())
         for callback in self.callbacks:
-            await callback(data)
+            await callback(decoded)
         print("Data handled by callbacks.")
 
     async def start_notifications(self, service_uuid, characteristic_uuid):

@@ -19,6 +19,7 @@ class MIDISender:
         note_on = [0x90, note, velocity]
         self.output_port.write_short(*note_on)
         self.active_notes.append(note)
+        return note
 
     def start_notes(self, notes, velocity=64):
         for note in notes:

@@ -1,89 +1,56 @@
 import asyncio
-import timeit
 
-from data import SensorDataDecoder
-from gui import Gui
+from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtWidgets import QApplication
+import sys
+from fast_gui import MainWindow2D, MainWindow3D
 from receiver import Receiver
 from midi import MIDISender
-from timeit import default_timer as timer
+from processing import Processor
+from player import Player
 
-async def main():
+async def connect_bt(device):
     DEVICE_MAC_ADDRESS = "A0:A3:B3:97:7C:D6"
     SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
     CHARACTERISTIC_UUID = "e68da052-33c2-4814-8793-60112fe6570a"
+    await device.scan_and_select_device()
+    if device.device_address:
+        await device.connect()
+        await device.start_notifications(SERVICE_UUID, CHARACTERISTIC_UUID)
 
-    device = Receiver(DEVICE_MAC_ADDRESS)
-    gui = Gui()
+
+async def main():
+    app = QApplication(sys.argv)
+
+    # Create and show 2D window
+    window2d = MainWindow2D()
+    window2d.resize(800, 600)
+    window2d.show()
+
+    receiver = Receiver()
+    # Create and show 3D window
+    window3d = MainWindow3D()
+    window3d.resize(800, 600)
+    window3d.show()
+    processor = Processor()
+    await processor.add_receiver(receiver)
+    await receiver.add_callback(window2d.update_plot)
+    await receiver.add_callback(window3d.update_plot)
+    await processor.add_callback(window2d.event_triggered)
+
     midi = MIDISender()
-    await device.connect()
-    await device.start_notifications(SERVICE_UUID, CHARACTERISTIC_UUID)
+    player = Player(midi)
+    await player.add_receiver(receiver)
+    await player.add_event_processor(processor)
 
-    async def my_callback(data):
-        received = timer()
-        #print("data received: ", received)
-        decoded_data = SensorDataDecoder.decode_data(data)
-        #print("Received data:", decoded_data)
-        mag = SensorDataDecoder.convert_magnetometer_data(decoded_data, "LSM303_MAGGAIN_4_0")
-        #print(mag)
-        orientation_angles = SensorDataDecoder.calculate_orientation_angles_xyz(mag)
-        acc = SensorDataDecoder.convert_accelerometer_data(decoded_data)
-        #print(acc)
-        gyr = SensorDataDecoder.convert_gyro_data(decoded_data)
-        print(gyr)
-        converted = timer()
-        print("converted: ", converted-received)
-        #print(orientation_angles)
-        scale_val = orientation_angles['yz'] / 360.0 * 12
-        if my_callback.chord is not None:
-            midi.stop_notes(my_callback.chord)
-            my_callback.chord = None
+    await connect_bt(receiver)
 
-        if(gyr['x'] > 50):
-            my_callback.chord = \
-                [midi.c_scale[max(0, round(scale_val) % len(midi.c_scale))],
-                 midi.c_scale[max(0, round(scale_val+4) % len(midi.c_scale))],
-                 midi.c_scale[max(0, round(scale_val+7) % len(midi.c_scale))]]
-            midi.start_notes(my_callback.chord)
-        elif(gyr['y'] > 50):
-            my_callback.chord = \
-                [midi.c_scale[max(0, round(scale_val) % len(midi.c_scale))] + 12,
-                 midi.c_scale[max(0, round(scale_val+5) % len(midi.c_scale))] + 12,
-                 midi.c_scale[max(0, round(scale_val+9) % len(midi.c_scale))] + 12]
-            midi.start_notes(my_callback.chord)
-        elif(gyr['x'] < -50):
-            my_callback.chord = \
-                [midi.c_scale[max(0, round(scale_val) % len(midi.c_scale))],
-                 midi.c_scale[max(0, round(scale_val-3) % len(midi.c_scale))],
-                 midi.c_scale[max(0, round(scale_val+4) % len(midi.c_scale))]]
-            midi.start_notes(my_callback.chord)
-        elif(gyr['y'] < -50):
-            my_callback.chord = \
-                [midi.c_scale[max(0, round(scale_val+4) % len(midi.c_scale))] + 12,
-                 midi.c_scale[max(0, round(scale_val+7) % len(midi.c_scale))] + 12,
-                 midi.c_scale[max(0, round(scale_val+11) % len(midi.c_scale))] + 12]
-            midi.start_notes(my_callback.chord)
-        bass = midi.c_scale[max(0, round(scale_val) % len(midi.c_scale))]-24
-        if(my_callback.bass != bass):
-            if my_callback.bass is not None:
-                midi.stop_note(my_callback.bass)
-            my_callback.bass = bass
-            midi.start_note(bass)
-
-        played = timer()
-        print("played: ", played-converted)
-        # gui.update(orientation_angles, mag, acc, gyr)
-        gui_update = timer()
-        print("gui: ", gui_update-played)
-
-    my_callback.chord = None
-    my_callback.bass = None
-    bass = None
-    await device.add_callback(my_callback)
-
-    # Warte auf Benachrichtigungen
+    # Start the Qt event loop
+    # sys.exit(app.exec_())
     while True:
-        await asyncio.sleep(30)
+        QCoreApplication.processEvents()  # Process Qt events
+        await asyncio.sleep(0.005)
+
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
+    asyncio.run(main())
